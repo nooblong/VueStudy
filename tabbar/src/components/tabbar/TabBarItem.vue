@@ -1,8 +1,8 @@
 <template>
-  <div class="tab-bar-item">
+  <div class="tab-bar-item" @click="itemClick">
     <slot v-if="!isActive" name="item-icon"></slot>
     <slot v-else name="item-icon-active"></slot>
-    <div v-bind:class="{active: isActive}">
+    <div v-bind:class="{active: isActive}" :style="activeStyle">
       <slot name="item-text"></slot>
     </div>
   </div>
@@ -13,7 +13,26 @@ export default {
   name: "TabBarItem",
   data() {
     return {
-      isActive: false
+    }
+  },
+  computed: {
+    isActive(){
+      return this.$route.path.indexOf(this.path) !== -1;
+    },
+    activeStyle(){
+      return this.isActive ? {color: this.activeColor} : {}
+    }
+  },
+  props: {
+    path: String,
+    activeColor: {
+      type: String,
+      default: "black"
+    }
+  },
+  methods: {
+    itemClick() {
+      this.$router.replace(this.path);
     }
   }
 }
@@ -36,7 +55,4 @@ export default {
   vertical-align: middle;
 }
 
-.active {
-  color: blue;
-}
 </style>
