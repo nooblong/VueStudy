@@ -1,13 +1,21 @@
 <template>
   <div class="tab-bar-item">
-    <slot name="item-icon"></slot>
-    <slot name="item-text"></slot>
+    <slot v-if="!isActive" name="item-icon"></slot>
+    <slot v-else name="item-icon-active"></slot>
+    <div v-bind:class="{active: isActive}">
+      <slot name="item-text"></slot>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "TabBarItem"
+  name: "TabBarItem",
+  data() {
+    return {
+      isActive: false
+    }
+  }
 }
 </script>
 
@@ -28,4 +36,7 @@ export default {
   vertical-align: middle;
 }
 
+.active {
+  color: blue;
+}
 </style>
