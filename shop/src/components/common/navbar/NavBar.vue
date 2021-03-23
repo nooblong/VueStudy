@@ -18,6 +18,7 @@ name: "NavBar"
     line-height: 44px;
     height: 44px;
     text-align: center;
+    background-color: rgb(241,240,245);
   }
   .left, .right {
     width: 60px;
