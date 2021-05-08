@@ -2,13 +2,17 @@
   <div id="home">
 
     <nav-bar class="home-navbar">Home</nav-bar>
+    <tab-control class="tab-control" :titles="['Pop','New','Nice']"
+                 @tabClick="tabClick" ref="tabControl_" :class="{fixed: isTabFixed}"
+                  v-show="isTabFixed"/>
     <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll"
-    :pull-up-load="true" @pullingUp="pullingUp">
+    :pull-up-load="true" @pullingUp="pullingUp"
+    >
       <div class="home-swiper apple">
         <swiper>
           <swiper-item v-for="item in banners" :key="item.title">
             <a :href="item.link">
-              <img :src="item.image" alt=""/>
+              <img :src="item.image" alt="" @load="imageLoad"/>
             </a>
           </swiper-item>
         </swiper>
@@ -16,7 +20,7 @@
       <recommend-view :recommends="recommends"/>
       <custom-image/>
       <tab-control class="tab-control" :titles="['Pop','New','Nice']"
-                   @tabClick="tabClick"/>
+                   @tabClick="tabClick" ref="tabControl" :class="{fixed: isTabFixed}"/>
       <goods-list :goods="goods[currentType].list"/>
     </scroll>
     <back-top v-show="isShow" @click.native="backClick" />
@@ -62,7 +66,9 @@ export default {
       },
       currentType: "pop",
       scroll: null,
-      isShow: false
+      isShow: false,
+      tabOffsetTop: Number,
+      isTabFixed: false
     }
   },
   created() {
@@ -71,6 +77,7 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
+
   },
   methods: {
     getHomeMultiData() {
@@ -108,9 +115,11 @@ export default {
           console.log("refresh");
           break;
       }
+      this.$refs.tabControl.currentIndex = index;
+      this.$refs.tabControl_.currentIndex = index;
     },
     backClick(){
-      this.scroll.scrollTo(0,0,30000);
+      this.scroll.scrollTo(0,0,300);
     },
     contentScroll(pos){
       if (-pos.y > 1000){
@@ -118,15 +127,46 @@ export default {
       } else {
         this.isShow = false;
       }
+
+      this.isTabFixed = (-pos.y) > this.tabOffsetTop;
+
     },
+
     pullingUp(){
       this.getHomeGoods(this.currentType);
       console.log("pullingUp");
       this.scroll.refresh();
+    },
+
+    debounce(func, delay){
+      let timer = null;
+      return function (...args){
+        if (timer)
+          clearTimeout(timer);
+        timer = setTimeout(() => {
+          func.apply(this, args)
+        }, delay);
+      }
+    },
+    imageLoad(){
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
     }
   },
   mounted() {
     this.scroll = this.$refs.scroll.scroll;
+
+    // console.log(this.scroll.refresh)
+    // console.log(this.$refs.scroll.refresh)
+    console.log(this)
+
+    const myRefresh = this.debounce(this.$refs.scroll.refresh, 100);
+
+    this.$bus.$on("itemImageLoad", () => {
+      myRefresh();
+    })
+
+
+
   }
 }
 </script>
@@ -143,16 +183,16 @@ export default {
 }
 
 .home-navbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9;
+  /*position: fixed;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 0;*/
+  /*z-index: 9;*/
 }
 
 .tab-control {
-  position: sticky;
-  top: 50px;
+  position: relative;
+  top: 0;
   z-index: 9;
 }
 
@@ -167,4 +207,11 @@ export default {
   overflow: hidden;
   /*background-color: #ff8198;*/
 }
+.fixed{
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
+}
+
 </style>

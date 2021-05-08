@@ -19,10 +19,10 @@ export default {
       type: Number,
       default: 0
     },
-    pullUpLoad: {
-      type: Boolean,
-      default: false
-    }
+    // pullUpLoad: {
+    //   type: Boolean,
+    //   default: false
+    // }
   },
   data(){
     return{
@@ -43,6 +43,13 @@ export default {
       this.$emit("pullingUp")
       this.scroll.finishPullUp();
     })
+
+  },
+  methods: {
+    refresh() {
+      this.scroll && this.scroll.refresh();
+      console.log("刷新")
+    }
   }
 }
 </script>
